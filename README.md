@@ -15,6 +15,87 @@ To install and configure Puppet Server and agents on ubuntu without DNS settings
 
 Here’s how to install and configure Puppet Server and agents on Ubuntu (while also addressing Amazon Linux without DNS settings):
 
+Here are the installation commands for Ruby 3.1 or later, Facter 2.0 or later, and optional gems such as `hiera-eyaml`, `hocon`, `msgpack`, `ruby-shadow`, and others.
+
+### 1. **Install Ruby 3.1 or Later**
+
+#### Step 1: Install Prerequisites
+```bash
+sudo apt-get update -y
+sudo apt-get install -y gnupg2 build-essential libssl-dev libreadline-dev zlib1g-dev
+```
+
+#### Step 2: Add Brightbox Repository (for Ubuntu)
+```bash
+sudo apt-add-repository ppa:brightbox/ruby-ng
+sudo apt-get update
+```
+
+#### Step 3: Install Ruby 3.1
+```bash
+sudo apt-get install -y ruby3.1
+```
+
+#### Step 4: Verify Ruby Installation
+```bash
+ruby -v
+```
+
+### 2. **Install Facter 2.0 or Later**
+
+Facter is usually installed as part of the Puppet installation. However, you can install or upgrade Facter manually as follows:
+
+```bash
+sudo gem install facter
+```
+
+### 3. **Install Optional Gems**
+
+#### 3.1 Install `hiera-eyaml`
+`hiera-eyaml` is used for encrypted data in Hiera.
+
+```bash
+sudo gem install hiera-eyaml
+```
+
+#### 3.2 Install `hocon`
+`hocon` is used to parse HOCON (Human-Optimized Config Object Notation) files.
+
+```bash
+sudo gem install hocon
+```
+
+#### 3.3 Install `msgpack`
+`msgpack` is a binary serialization format.
+
+```bash
+sudo gem install msgpack
+```
+
+#### 3.4 Install `ruby-shadow`
+`ruby-shadow` is used for managing Unix user accounts' shadow password entries.
+
+```bash
+sudo gem install ruby-shadow
+```
+
+#### 3.5 Install Other Gems
+If there are additional gems you need, you can install them similarly:
+
+```bash
+sudo gem install <gem_name>
+```
+
+### 4. **Verify Gem Installations**
+
+You can check the installed versions of the gems with:
+
+```bash
+gem list | grep <gem_name>
+```
+
+This setup should cover installing Ruby, Facter, and the specified optional gems on your system.
+
 ### 1. **Set Up Puppet Server on Ubuntu**
 
 #### Step 1: Update the System
