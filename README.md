@@ -96,144 +96,239 @@ gem list | grep <gem_name>
 
 This setup should cover installing Ruby, Facter, and the specified optional gems on your system.
 
+### 1. **Set Up Puppet Agent on Ubuntu**
+
+>> Launch ec2 - t2.micro >> ssh 
+SG: 8140 - puppet
+80, 22, 443
+
+// update
+sudo apt update -y
+// upgrade
+sudo apt --upgradable list
+sudo apt upgrade -y
+// install puppet-agent pkg
+sudo apt-get install puppet-agent
+// config
+sudo nano /etc/puppet/puppet.conf 
+// starting puppet service
+sudo systemctl start puppet
+// check status
+sudo systemctl status puppet
+// enable service boot
+sudo systemctl enable puppet
+// update of hosts file
+// copy srerver ip and client ip update it 
+sudo nano /etc/hosts
+```
+[server-ip] puppetmaster
+[client-ip] puppetclient
+example:
+35.153.183.56 puppetmaster
+3.81.14.228 puppetclient
+```
+// status
+sudo systemctl status puppet
+
 ### 1. **Set Up Puppet Server on Ubuntu**
 
-#### Step 1: Update the System
-- SSH into your Ubuntu instance and update the system:
-  ```bash
-  sudo apt-get update -y
-  sudo apt-get upgrade -y
-  ```
+Launch 2 instances on same network | us-east-1c
 
-#### Step 2: Set Up Hostname and /etc/hosts
-- Set the hostname of your server:
-  ```bash
-  sudo hostnamectl set-hostname puppet.local
-  ```
+// update public ip details of client and server 
 
-- Update the `/etc/hosts` file to ensure the hostname resolves locally:
-  ```bash
-  sudo nano /etc/hosts
-  ```
-  Add the following line (assuming the server’s IP is `192.168.1.10`):
-  ```bash
-  127.0.0.1 puppet.local puppet
-  192.168.1.10 puppet.local puppet
-  ```
+sudo nano /etc/hosts
 
-#### Step 3: Install Puppet Server
-- Add the Puppet repository:
-  ```bash
-  wget https://apt.puppet.com/puppet7-release-focal.deb
-  sudo dpkg -i puppet7-release-focal.deb
-  sudo apt-get update
-  ```
+// Public ip
+```
+puppet-server 54.162.99.19
+puppet-client 54.227.168.66
+```
 
-- Install Puppet Server:
-  ```bash
-  sudo apt-get install -y puppetserver
-  ```
+// Private ip
+```
+puppet-server 172.31.37.94
+puppet-client 172.31.45.253
+```
 
-#### Step 4: Configure Puppet Server
-- Edit the Puppet configuration file:
-  ```bash
-  sudo nano /etc/puppetlabs/puppet/puppet.conf
-  ```
-  Add the following under the `[main]` section:
-  ```ini
-  [main]
-  certname = puppet.local
-  server = puppet.local
-  ```
+// Note Down instance DNS
+Client DNS: ec2-54-227-168-66.compute-1.amazonaws.com
+Server DNS: ec2-54-162-99-19.compute-1.amazonaws.com
 
-- Adjust memory allocation if needed:
-  ```bash
-  sudo nano /etc/default/puppetserver
-  ```
-  Modify the `JAVA_ARGS` parameter:
-  ```bash
-  JAVA_ARGS="-Xms512m -Xmx512m"
-  ```
+// on puppet agent
+sudo nano /etc/puppet/puppet.conf
+```
+[main]
+certname = puppetclient
+server = ec2-54-162-99-19.compute-1.amazonaws.com
+environment = production
+```
 
-#### Step 5: Start Puppet Server
-- Start and enable the Puppet Server service:
-  ```bash
-  sudo systemctl start puppetserver
-  sudo systemctl enable puppetserver
-  ```
+// Connections
 
-### 2. **Set Up Puppet Agents on Client Machines (Ubuntu)**
+To connect the Puppet Agent and Puppet Server hosted on EC2 instances using their public or private IP addresses, follow these steps:
 
-#### Step 1: Update and Set Up Hostname
-- SSH into the agent machine and set the hostname:
-  ```bash
-  sudo hostnamectl set-hostname agent1.local
-  ```
+### 1. **Set Up Hostname Resolution**
 
-- Update the `/etc/hosts` file to resolve the Puppet server’s hostname:
-  ```bash
-  sudo nano /etc/hosts
-  ```
-  Add the following line:
-  ```bash
-  192.168.1.10 puppet.local puppet
-  127.0.0.1 agent1.local
-  ```
+You can choose to connect via the private IPs or public DNS. The private IPs are typically preferred for internal communication due to lower latency and no internet exposure.
 
-#### Step 2: Install Puppet Agent
-- Add the Puppet repository:
-  ```bash
-  wget https://apt.puppet.com/puppet7-release-focal.deb
-  sudo dpkg -i puppet7-release-focal.deb
-  sudo apt-get update
-  ```
+#### Option 1: **Using Private IPs**
+Update the `/etc/hosts` file on both the Puppet Server and Puppet Agent to resolve the hostname using private IPs.
 
-- Install the Puppet agent:
-  ```bash
-  sudo apt-get install -y puppet-agent
-  ```
+On **Puppet Server (54.162.99.19):**
+```bash
+sudo nano /etc/hosts
+```
+Add the agent’s private IP and hostname:
+```bash
+172.31.45.253 puppet-client ec2-54-227-168-66.compute-1.amazonaws.com
+```
 
-#### Step 3: Configure Puppet Agent
-- Update the Puppet agent configuration file:
-  ```bash
-  sudo nano /etc/puppetlabs/puppet/puppet.conf
-  ```
-  Add the following under the `[main]` section:
-  ```ini
-  [main]
-  certname = agent1.local
-  server = puppet.local
-  environment = production
-  ```
+On **Puppet Agent (54.227.168.66):**
+```bash
+sudo nano /etc/hosts
+```
+Add the server’s private IP and hostname:
+```bash
+172.31.37.94 puppet-server ec2-54-162-99-19.compute-1.amazonaws.com
+```
 
-#### Step 4: Start Puppet Agent
-- Start and enable the Puppet agent service:
-  ```bash
-  sudo systemctl start puppet
-  sudo systemctl enable puppet
-  ```
+#### Option 2: **Using Public DNS**
+If you prefer to use public DNS names, ensure your security groups allow traffic on port 8140 from the public IPs of both instances.
 
-### 3. **Sign Agent Certificates on Puppet Server**
+On **Puppet Server:**
+```bash
+sudo nano /etc/hosts
+```
+Add:
+```bash
+54.227.168.66 puppet-client ec2-54-227-168-66.compute-1.amazonaws.com
+```
 
-#### Step 1: Check for Agent Certificates on Puppet Server
-- On the Puppet server, list pending certificate requests:
-  ```bash
-  sudo /opt/puppetlabs/bin/puppetserver ca list --all
-  ```
+On **Puppet Agent:**
+```bash
+sudo nano /etc/hosts
+```
+Add:
+```bash
+54.162.99.19 puppet-server ec2-54-162-99-19.compute-1.amazonaws.com
+```
 
-#### Step 2: Sign the Certificates
-- Sign the agent certificates:
-  ```bash
-  sudo /opt/puppetlabs/bin/puppetserver ca sign --certname agent1.local
-  ```
+### 2. **Configure Puppet Server**
+On the Puppet Server, edit the `puppet.conf` file to ensure it uses the correct server name.
 
-### 4. **Verify the Configuration**
+```bash
 
-#### Step 1: Test Puppet Agent Communication
-- On each agent machine, run:
-  ```bash
-  sudo /opt/puppetlabs/bin/puppet agent --test
-  ```
-- Ensure that the agent successfully connects to the Puppet server and applies the configuration.
+sudo nano /etc/puppetlabs/puppet/puppet.conf
+```
+Set the `[master]` and `[main]` sections to match the chosen hostname:
+```bash
+[main]
+certname = ec2-54-162-99-19.compute-1.amazonaws.com
+server = ec2-54-162-99-19.compute-1.amazonaws.com
+dns_alt_names = puppet,ec2-54-162-99-19.compute-1.amazonaws.com
+```
 
-This setup provides a working Puppet Server and agent environment on Ubuntu, using `/etc/hosts` for name resolution instead of DNS.
+Restart the Puppet Server:
+```bash
+sudo systemctl restart puppetserver
+```
+
+### 3. **Configure Puppet Agent**
+On the Puppet Agent, configure it to communicate with the Puppet Server using the DNS name.
+
+Edit the `puppet.conf` file:
+```bash
+sudo nano /etc/puppetlabs/puppet/puppet.conf
+```
+Set:
+```bash
+[main]
+server = ec2-54-162-99-19.compute-1.amazonaws.com
+certname = ec2-54-227-168-66.compute-1.amazonaws.com
+```
+
+### 4. **Sign the Agent’s Certificate on the Server**
+On the Puppet Server, sign the Puppet Agent’s certificate request:
+```bash
+sudo puppetserver ca list --all
+sudo puppetserver ca sign --certname ec2-54-227-168-66.compute-1.amazonaws.com
+```
+
+### 5. **Test the Connection**
+On the Puppet Agent, run the test to ensure it can connect to the server:
+```bash
+sudo puppet agent --test
+```
+
+### 6. **Verify Firewall and Security Group Settings**
+Ensure that your security groups allow inbound traffic on port `8140` for Puppet communication between the server and the agent.
+
+With these steps, your Puppet Agent should successfully connect to the Puppet Server. Let me know if you encounter any issues during this setup!
+
+
+// on puppet server 
+/etc/puppetlabs/puppet/puppet.conf
+
+// open source puppet
+
+https://www.puppet.com/
+https://www.puppet.com/downloads/puppet-enterprise
+https://www.puppet.com/success/community/open-source/free-trial
+https://www.puppet.com/docs/puppet/8/installing_and_upgrading.html
+https://www.puppet.com/docs/puppet/8/install_puppet
+
+sudo rpm -Uvh https://yum.puppet.com/puppet7-release-el-8.noarch.rpm
+sudo yum-config-manager --enable puppet7
+
+sudo yum install java-21-amazon-corretto-headless
+
+// puppet server installation - ubuntu ec2 | ubuntu 22.04 | t2.medium
+
+sudo apt update -y
+sudo apt list --upgradable
+sudo apt upgrade -y
+
+sudo -i passwd 
+sudo apt install wget
+lsb_release -a
+
+// prerequisite 
+Links: 
+https://www.puppet.com/docs/puppet/8/server/install_from_packages.html#java-support
+https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html
+
+sudo wget https://download.oracle.com/java/17/archive/jdk-17.0.11_linux-x64_bin.deb
+sudo dpkg -i jdk-17.0.11_linux-x64_bin.deb
+sudo apt update -y
+java --version
+
+// enable puppet platform on apt
+Link: https://www.puppet.com/docs/puppet/7/install_puppet#enable_the_puppet_platform_apt
+
+wget https://apt.puppet.com/puppet7-release-focal.deb
+sudo dpkg -i puppet7-release-focal.deb
+sudo apt-get update
+
+sudo apt-get install puppetserver
+sudo systemctl start puppetserver
+sudo systemctl status puppetserver
+
+// ERROR
+Job for puppetserver.service failed because the control process exited with error code.
+See "systemctl status puppetserver.service" and "journalctl -xeu puppetserver.service" for details.
+
+// Solution for ERROR | Update RAM details
+sudo nano /etc/default/puppetserver
+
+// update 2g
+
+// ERROR
+```
+Fatal error when running action 'list'
+  Error: Failed connecting to https://54.162.99.19:8140/puppet-ca/v1/certificate_statuses/any_key
+  Root cause: SSL_connect returned=1 errno=0 state=error: certificate verify failed (Hostname mismatch)
+```
+
+// Test Connection
+sudo /opt/puppetlabs/bin/puppet agent --test
+
