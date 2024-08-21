@@ -343,5 +343,7 @@ Fatal error when running action 'list'
 ```
 
 // Test Connection
+```
 sudo /opt/puppetlabs/bin/puppet agent --test
+```
 
