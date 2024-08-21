@@ -1,13 +1,13 @@
 # puppet
 Puppet Server and Agent Configurations 
 
-To install and configure Puppet Server and agents on ubuntu without DNS settings, follow these steps:
+To install and configure Puppet Server and agents on ubuntu DNS settings, follow these steps:
 
 ### 1. **Set Up Puppet Server on ubuntu**
 
 #### Step 1: Launch an ubuntu Instance for Puppet Server
 - Launch an ubuntu instance from the AWS Management Console.
-- Choose an instance type like `t2.medium` for better performance.
+- Choose an instance `t2.medium` (recommended).
 - Configure the security group to allow:
   - SSH (Port 22)
   - Puppet (Port 8140)
@@ -98,28 +98,40 @@ This setup should cover installing Ruby, Facter, and the specified optional gems
 
 ### 1. **Set Up Puppet Agent on Ubuntu**
 
->> Launch ec2 - t2.micro >> ssh 
-SG: 8140 - puppet
-80, 22, 443
-
 // update
+```
 sudo apt update -y
+```
 // upgrade
+```
 sudo apt --upgradable list
 sudo apt upgrade -y
+```
 // install puppet-agent pkg
+```
 sudo apt-get install puppet-agent
+```
 // config
-sudo nano /etc/puppet/puppet.conf 
+```
+sudo nano /etc/puppet/puppet.conf
+```
 // starting puppet service
+```
 sudo systemctl start puppet
+```
 // check status
+```
 sudo systemctl status puppet
+```
 // enable service boot
+```
 sudo systemctl enable puppet
+```
 // update of hosts file
 // copy srerver ip and client ip update it 
+```
 sudo nano /etc/hosts
+```
 ```
 [server-ip] puppetmaster
 [client-ip] puppetclient
@@ -128,8 +140,9 @@ example:
 3.81.14.228 puppetclient
 ```
 // status
+```
 sudo systemctl status puppet
-
+```
 ### 1. **Set Up Puppet Server on Ubuntu**
 
 Launch 2 instances on same network | us-east-1c
