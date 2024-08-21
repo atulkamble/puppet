@@ -280,59 +280,69 @@ With these steps, your Puppet Agent should successfully connect to the Puppet Se
 
 
 // on puppet server 
+```
 /etc/puppetlabs/puppet/puppet.conf
-
+```
 // open source puppet
-
+```
 https://www.puppet.com/
 https://www.puppet.com/downloads/puppet-enterprise
 https://www.puppet.com/success/community/open-source/free-trial
 https://www.puppet.com/docs/puppet/8/installing_and_upgrading.html
 https://www.puppet.com/docs/puppet/8/install_puppet
-
+```
+```
 sudo rpm -Uvh https://yum.puppet.com/puppet7-release-el-8.noarch.rpm
 sudo yum-config-manager --enable puppet7
-
+```
+```
 sudo yum install java-21-amazon-corretto-headless
-
-// puppet server installation - ubuntu ec2 | ubuntu 22.04 | t2.medium
-
+```
+## puppet server installation - ubuntu ec2 | ubuntu 22.04 | t2.medium
+```
 sudo apt update -y
 sudo apt list --upgradable
 sudo apt upgrade -y
-
+```
+```
 sudo -i passwd 
 sudo apt install wget
 lsb_release -a
+```
 
 // prerequisite 
 Links: 
+```
 https://www.puppet.com/docs/puppet/8/server/install_from_packages.html#java-support
 https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html
-
+```
+```
 sudo wget https://download.oracle.com/java/17/archive/jdk-17.0.11_linux-x64_bin.deb
 sudo dpkg -i jdk-17.0.11_linux-x64_bin.deb
 sudo apt update -y
 java --version
-
+```
 // enable puppet platform on apt
 Link: https://www.puppet.com/docs/puppet/7/install_puppet#enable_the_puppet_platform_apt
-
+```
 wget https://apt.puppet.com/puppet7-release-focal.deb
 sudo dpkg -i puppet7-release-focal.deb
 sudo apt-get update
-
+```
+```
 sudo apt-get install puppetserver
 sudo systemctl start puppetserver
 sudo systemctl status puppetserver
-
+```
 // ERROR
+```
 Job for puppetserver.service failed because the control process exited with error code.
 See "systemctl status puppetserver.service" and "journalctl -xeu puppetserver.service" for details.
-
+```
 // Solution for ERROR | Update RAM details
+```
 sudo nano /etc/default/puppetserver
-
+```
 // update 2g
 
 // ERROR
