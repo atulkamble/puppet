@@ -356,4 +356,14 @@ Fatal error when running action 'list'
 ```
 sudo /opt/puppetlabs/bin/puppet agent --test
 ```
+// from puppet server - sign certificate
+```
+puppetserver ca list --all
+puppetserver ca sign --certname ec2-54-227-168-66.compute-1.amazonaws.com
+```
+// from puppet agent 
+```
+sudo puppet agent --test
+```
 
+sudo puppetserver ca generate --certname ec2-54-162-99-19.compute-1.amazonaws.com
