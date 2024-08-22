@@ -136,8 +136,8 @@ sudo nano /etc/hosts
 [server-ip] puppetmaster
 [client-ip] puppetclient
 example:
-172.31.45.253 puppetclient ec2-54-166-254-32.compute-1.amazonaws.com
-172.31.46.68 puppetserver ec2-3-87-117-147.compute-1.amazonaws.com
+172.31.45.253 puppetclient ec2-54-173-224-4.compute-1.amazonaws.com
+172.31.46.68 puppetserver ec2-34-229-253-76.compute-1.amazonaws.com
 ```
 // status
 ```
