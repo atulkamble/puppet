@@ -376,6 +376,7 @@ To test the connection between the Puppet Server and Puppet Agent, you can use t
    Run the following command on the Puppet Agent to check if it can communicate with the Puppet Server:
    ```bash
    sudo puppet agent --test --server=<puppet_server_fqdn_or_ip>
+   sudo puppet agent --test --server=ec2-3-87-117-147.compute-1.amazonaws.com
    ```
    Replace `<puppet_server_fqdn_or_ip>` with the actual hostname or IP address of your Puppet Server.
 
