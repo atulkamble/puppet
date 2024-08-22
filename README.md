@@ -367,3 +367,45 @@ sudo puppet agent --test
 ```
 
 sudo puppetserver ca generate --certname ec2-54-162-99-19.compute-1.amazonaws.com
+
+// Test Connection
+To test the connection between the Puppet Server and Puppet Agent, you can use the following commands on both the Puppet Server and Puppet Agent:
+
+### 1. **Test Puppet Agent Connection to Puppet Server:**
+
+   Run the following command on the Puppet Agent to check if it can communicate with the Puppet Server:
+   ```bash
+   sudo puppet agent --test --server=<puppet_server_fqdn_or_ip>
+   ```
+   Replace `<puppet_server_fqdn_or_ip>` with the actual hostname or IP address of your Puppet Server.
+
+### 2. **Check for SSL Certificate Signing Request (CSR) on the Puppet Server:**
+
+   If the Puppet Agent connects successfully, it will send an SSL certificate signing request (CSR) to the Puppet Server. To list pending certificate requests on the Puppet Server, run:
+   ```bash
+   sudo puppetserver ca list --all
+   ```
+
+### 3. **Sign the Agent’s Certificate on the Puppet Server:**
+
+   If the CSR is listed, you can sign the agent's certificate on the Puppet Server using:
+   ```bash
+   sudo puppetserver ca sign --certname <agent_hostname>
+   ```
+   Replace `<agent_hostname>` with the actual hostname of the Puppet Agent.
+
+### 4. **Verify the Puppet Agent Connection:**
+
+   After signing the certificate, run the following command again on the Puppet Agent to confirm that it can now pull configurations from the Puppet Server:
+   ```bash
+   sudo puppet agent --test
+   ```
+
+### 5. **Check Agent Logs for Errors:**
+
+   If there are any issues, check the logs on the Puppet Agent:
+   ```bash
+   sudo tail -f /var/log/puppetlabs/puppet/puppet.log
+   ```
+
+These steps will help ensure that the Puppet Agent can successfully communicate with the Puppet Server.
