@@ -413,3 +413,131 @@ To test the connection between the Puppet Server and Puppet Agent, you can use t
    ```
 
 These steps will help ensure that the Puppet Agent can successfully communicate with the Puppet Server.
+
+
+// Check Connectivity between two instances 
+```
+ping private-ip
+ssh -i /path/to/your-key.pem ec2-user@<target-instance-public-or-private-ip>
+telnet <target-instance-private-ip> <port>
+nc -zv <target-instance-private-ip> <port>
+traceroute <target-instance-private-ip>
+curl http://<target-instance-private-ip>:<port>
+```
+
+// test connectivity | open client
+```
+chmod 400 puppet.pem 
+ssh -i "puppet.pem" ubuntu@172.31.46.68
+```
+// Note Down details 
+// Both Agent and server | update hosts file 
+```
+sudo nano /etc/hosts
+```
+```
+172.31.45.253 puppetclient ec2-54-80-194-251.compute-1.amazonaws.com
+172.31.46.68 puppetserver ec2-54-224-115-5.compute-1.amazonaws.com
+```
+// On Puppet Agent
+```
+sudo nano /etc/puppet/puppet.conf
+```
+```
+[main]
+certname = ec2-54-224-115-5.compute-1.amazonaws.com
+server = ec2-54-224-115-5.compute-1.amazonaws.com
+```
+// On Puppet Server 
+```
+sudo nano /etc/puppetlabs/puppet/puppet.conf 
+```
+```
+[main]
+certname = ec2-54-224-115-5.compute-1.amazonaws.com
+server = ec2-54-224-115-5.compute-1.amazonaws.com
+dns_alt_names = puppet,ec2-54-224-115-5.compute-1.amazonaws.com
+environment = production
+```
+
+// on agent machine
+```
+sudo puppet agent --test --server=ec2-54-224-115-5.compute-1.amazonaws.com
+```
+// On Server | list all certificate
+```
+sudo /opt/puppetlabs/server/bin/puppetserver ca list --all
+```
+// sign specific certificate
+```
+sudo /opt/puppetlabs/server/bin/puppetserver ca sign --certname ec2-54-224-115-5.compute-1.amazonaws.com
+```
+
+// revoke specific certificate
+```
+sudo /opt/puppetlabs/server/bin/puppetserver ca clean --certname ec2-3-87-117-147.compute-1.amazonaws.com
+```
+```
+sudo openssl crl -in /etc/puppetlabs/puppetserver/ca/ca_crl.pem -text -noout
+```
+
+// on puppet- agent | generate new csr
+```
+sudo rm -rf /etc/puppetlabs/puppet/ssl/*
+sudo puppet agent --test --server=ec2-3-87-117-147.compute-1.amazonaws.com
+```
+// Practice Manifests
+```
+sudo touch test.pp
+sudo nano test.pp
+```
+// copy code
+```
+file { '/tmp/testfile':
+  ensure  => 'present',
+  content => "This is a test file created by Puppet.\n",
+}
+```
+// run
+```
+puppet apply test.pp
+```
+// test output
+```
+cat /tmp/testfile
+```
+// 
+```
+sudo touch site.pp
+sudo nano site.pp
+```
+```
+node default {
+  file { '/tmp/puppet_test_file':
+    ensure  => 'present',
+    content => 'This file is managed by Puppet.',
+  }
+}
+```
+```
+sudo cat /tmp/puppet_test_file 
+```
+// Run multiple files 
+```
+mkdir manifests
+mv site.pp manifests
+mv test.pp manifests
+```
+// run 
+```
+sudo puppet apply manifests/site.pp  
+sudo puppet apply manifests
+```
+// simulate without apply
+```
+puppet apply test.pp --noop
+```
+// detailed output
+```
+puppet apply test.pp --debug
+```
