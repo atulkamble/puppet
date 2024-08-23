@@ -486,6 +486,38 @@ sudo openssl crl -in /etc/puppetlabs/puppetserver/ca/ca_crl.pem -text -noout
 sudo rm -rf /etc/puppetlabs/puppet/ssl/*
 sudo puppet agent --test --server=ec2-3-87-117-147.compute-1.amazonaws.com
 ```
+
+### Step 4: Create a Puppet Manifest
+
+1. **On Puppet Master Instance**:
+    - Create a simple manifest to manage the state of a resource, such as creating a file on the agent:
+      ```sh
+      sudo mkdir -p /etc/puppetlabs/code/environments/production/manifests
+      sudo nano /etc/puppetlabs/code/environments/production/manifests/site.pp
+      ```
+
+    - Add the following content to `site.pp`:
+      ```puppet
+      node default {
+        file { '/tmp/puppet_test_file':
+          ensure  => 'present',
+          content => 'This file is managed by Puppet.',
+        }
+      }
+      ```
+
+### Step 5: Test the Configuration
+
+1. **On Puppet Agent Instance**:
+    - Trigger a Puppet agent run to apply the manifest:
+      ```sh
+      sudo /opt/puppetlabs/bin/puppet agent --test
+      ```
+
+2. **Verify**:
+    - Check the `/tmp` directory for the `puppet_test_file` to ensure it has been created and managed by Puppet.
+
+
 // Practice Manifests
 ```
 sudo touch test.pp
